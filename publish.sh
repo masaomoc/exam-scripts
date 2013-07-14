@@ -21,20 +21,24 @@ dimensionKey=InstanceId
 dimensionValue=$instanceId
 dimensions="{\"name\":\"${dimensionKey}\",\"value\":\"${dimensionValue}\"}"
 
-topicARN=`aws sns list-topics --region ${region} | jq '.[].TopicArn' | tr -d '"'`
+topicARN=`
+    aws sns list-topics --region ${region} \
+        | jq '.[].TopicArn'                \
+        | tr -d '"'
+    `
 # configuration end
 
 # retrieve data from cloudwatch
 dataJson=`
     aws cloudwatch get-metric-statistics \
-        --region       ${region}            \
-        --namespace    ${namespace}         \
-        --metric-name  ${metrics}           \
-        --statistics   ${statistics}        \
-        --period       ${period}            \
-        --start-time  "${startTime}"        \
-        --end-time    "${endTime}"          \
-        --dimensions   ${dimensions}        \
+        --region       ${region}         \
+        --namespace    ${namespace}      \
+        --metric-name  ${metrics}        \
+        --statistics   ${statistics}     \
+        --period       ${period}         \
+        --start-time  "${startTime}"     \
+        --end-time    "${endTime}"       \
+        --dimensions   ${dimensions}     \
         | jq -c '.Datapoints | .[0]'
     `
 
@@ -46,7 +50,7 @@ average=`echo ${dataJson} | jq '.Average'`
 message="使用率：${average}%"
 
 # publish JSON message
-aws sns publish           \
+aws sns publish              \
     --topic-arn  ${topicARN} \
-    --message    ${message} \
+    --message    ${message}  \
     --region     ${region}   > /dev/null
