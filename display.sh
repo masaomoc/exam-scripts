@@ -10,7 +10,6 @@ trap 'rm -rf ${tmpdir}; echo -n exitting...' EXIT
 
 messageFile=${tmpdir}/message
 receiptHandle=${tmpdir}/receiptHandle
-
 region=ap-northeast-1
 url=`/usr/bin/aws sqs list-queues --region ${region} | /usr/bin/jq -c '.QueueUrls | .[0]' | tr -d '"'`
 
@@ -22,10 +21,15 @@ do
         --queue-url ${url} > ${messageFile}
 
     # retrieve message body and remove escape sequenses
-    body=`cat $messageFile | /usr/bin/jq -c '.Messages | .[].Body' | sed -e 's/\\//g'`
+    body=`cat $messageFile              \
+        | jq -c '.Messages | .[].Body'  \
+        | sed -e 's/\\//g'
+    `
 
-    # write to file not to be escaped
-    cat $messageFile | /usr/bin/jq -c '.Messages | .[].ReceiptHandle' | tr -d '"' > ${receiptHandle}
+    # write into file not to be escaped
+    cat $messageFile                            \
+        | jq -c '.Messages | .[].ReceiptHandle' \
+        | tr -d '"' > ${receiptHandle}
 
     if [ -z ${body} -o ${body} != null ]; then
         echo $body
@@ -35,6 +39,5 @@ do
             --queue-url      ${url}     \
             --receipt-handle `cat ${receiptHandle}` > /dev/null
     fi
-
     sleep 30
 done
