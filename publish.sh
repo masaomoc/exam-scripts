@@ -4,8 +4,6 @@ set -e
 LANG=C
 cd `dirname $0` || exit 1
 
-trap 'echo exitting...' EXIT
-
 aws=`which aws`
 jq=`which jq`
 
@@ -17,7 +15,7 @@ instanceId=`curl ${metadataUrl}instance-id 2>/dev/null`
 region=ap-northeast-1
 namespace=AWS/EC2
 metrics=CPUUtilization
-statistics='["Minimum","Average","Maximum"]'
+statistics="Average"
 period=60
 startTime=`date --date '2 minutes ago'`
 endTime=`date --date '1 minutes ago'`
