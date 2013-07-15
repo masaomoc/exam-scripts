@@ -36,7 +36,9 @@ do
         | jq -c '.Messages | .[].ReceiptHandle' \
         | tr -d '"' > ${receiptHandle}
 
-    if [ -z "${body}" -o "${body}" != null ]; then
+    if [ -z "${body}" -o "${body}" = null ]; then
+        :
+    else
         echo $body
 
         aws sqs delete-message          \
