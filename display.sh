@@ -28,7 +28,7 @@ do
     body=`
         cat $messageFile                   \
             | jq -c '.Messages | .[].Body' \
-            | sed -e 's/\\\\//g'
+            | sed -e 's/\\\\//g' -e 's/"//g'
     `
 
     # write into file not to be escaped
