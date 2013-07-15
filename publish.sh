@@ -21,7 +21,7 @@ dimensionKey=InstanceId
 dimensionValue=$instanceId
 dimensions="{\"name\":\"${dimensionKey}\",\"value\":\"${dimensionValue}\"}"
 
-topicARN=`
+snsARN=`
     aws sns list-topics --region ${region} \
         | jq '.[].TopicArn'                \
         | tr -d '"'
@@ -42,15 +42,15 @@ dataJson=`
         | jq -c '.Datapoints | .[0]'
     `
 
-if [ -z ${dataJson} -o ${dataJson} = null ]; then
-    echo 'data does not found' 1>&2 && exit 1
+if [ -z "${dataJson}" -o ${dataJson} = null ]; then
+    echo 'data does not found' >&2 && exit 1
 fi
 
 average=`echo ${dataJson} | jq '.Average'`
 message="使用率：${average}%"
 
 # publish JSON message
-aws sns publish              \
-    --topic-arn  ${topicARN} \
-    --message    ${message}  \
+aws sns publish             \
+    --topic-arn  ${snsARN}  \
+    --message    ${message} \
     --region     ${region}   > /dev/null
