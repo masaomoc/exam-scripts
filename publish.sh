@@ -53,4 +53,4 @@ message="使用率：${average}%"
 aws sns publish             \
     --topic-arn  ${snsARN}  \
     --message    ${message} \
-    --region     ${region}   > /dev/null
+    --region     ${region}  > /dev/null
