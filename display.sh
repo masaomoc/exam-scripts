@@ -28,9 +28,8 @@ do
     body=`
         cat $messageFile                   \
             | jq -c '.Messages | .[].Body' \
-            | sed -e 's/\\\\//g' -e 's/"//g'
+            | tr -d '"'
     `
-
     # write into file not to be escaped
     cat $messageFile                            \
         | jq -c '.Messages | .[].ReceiptHandle' \
@@ -40,7 +39,6 @@ do
         :
     else
         echo $body
-
         aws sqs delete-message          \
             --region         ${region}  \
             --queue-url      ${url}     \
